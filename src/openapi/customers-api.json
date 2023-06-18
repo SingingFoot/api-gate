@@ -1,0 +1,1811 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Customers API",
+    "description": "Customers provides a single API for interacting with Veygo customers",
+    "version": "3.0.1"
+  },
+  "servers": [
+    {
+      "url": "https://api.preprod-veygo.com/customers",
+      "description": "Preproduction"
+    },
+    {
+      "url": "https://api.veygo.com/customers",
+      "description": "Production"
+    }
+  ],
+  "paths": {
+    "/v3": {
+      "post": {
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Creates a customer via Salesforce",
+        "description": "This should be called after creating a new user in Cognito",
+        "operationId": "salesforce_post",
+        "requestBody": {
+          "description": "The customer's details",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCustomerRequestV3"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_201"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorisation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Customer already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Status 422 Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error from service",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Unable to communicate with service",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Service timeout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "CognitoAuthorizer": []
+          }
+        ],
+        "x-amazon-apigateway-request-validator": "body",
+        "x-amazon-apigateway-integration": {
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "credentials": {
+            "Fn::Sub": "${ApiRole.Arn}"
+          },
+          "uri": {
+            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SalesforcePostLambdaFunction.Arn}/invocations"
+          }
+        }
+      },
+      "options": {
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Returns cors preflight request headers",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "credentials": {
+            "Fn::Sub": "${ApiRole.Arn}"
+          },
+          "uri": {
+            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CorsLambdaFunction.Arn}/invocations"
+          }
+        }
+      }
+    },
+    "/v3/health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Determines whether the Customer API is functional",
+        "operationId": "health",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Generic error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service down",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Service timeout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "credentials": {
+            "Fn::Sub": "${ApiRole.Arn}"
+          },
+          "uri": {
+            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${HealthLambdaFunction.Arn}/invocations"
+          }
+        }
+      },
+      "options": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Returns cors preflight request headers",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "credentials": {
+            "Fn::Sub": "${ApiRole.Arn}"
+          },
+          "uri": {
+            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CorsLambdaFunction.Arn}/invocations"
+          }
+        }
+      }
+    },
+    "/v3/me": {
+      "get": {
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Gets a customer via Salesforce",
+        "operationId": "salesforce_get",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerResponseV3"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorisation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Generic error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service down",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Service timeout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "CognitoAuthorizer": []
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "credentials": {
+            "Fn::Sub": "${ApiRole.Arn}"
+          },
+          "uri": {
+            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SalesforceGetLambdaFunction.Arn}/invocations"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Updates a Customer via Salesforce",
+        "operationId": "salesforce_put",
+        "parameters": [
+          {
+            "name": "user_identity",
+            "in": "cookie",
+            "description": "The user id associated with feature flag(s)",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string",
+              "format": "ascii_letters"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCustomerRequestV3"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateCustomerResponseV3"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorisation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Generic error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service down",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Service timeout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "CognitoAuthorizer": []
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "credentials": {
+            "Fn::Sub": "${ApiRole.Arn}"
+          },
+          "uri": {
+            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SalesforcePutLambdaFunction.Arn}/invocations"
+          }
+        }
+      },
+      "options": {
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Returns cors preflight request headers",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "credentials": {
+            "Fn::Sub": "${ApiRole.Arn}"
+          },
+          "uri": {
+            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CorsLambdaFunction.Arn}/invocations"
+          }
+        }
+      }
+    },
+    "/v3/check-exists": {
+      "get": {
+        "tags": [
+          "Check Exists"
+        ],
+        "summary": "Returns the status to indicate whether the passed in attribute exists in Salesforce",
+        "description": "Used to see if a customer already exists with a specific licence number.",
+        "operationId": "get_check_exists",
+        "parameters": [
+          {
+            "name": "licence_number",
+            "in": "query",
+            "description": "The customer driving licence number",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "pattern": "^[A-Z0-9]{5}\\d[0156]\\d([0][1-9]|[12]\\d|3[01])\\d[A-Z0-9]{3}[A-Z]{2}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully recieved request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckExistsResponse"
+                },
+                "example": {
+                  "customer_exists": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestErrorResponse"
+                },
+                "example": {
+                  "code": "INVALID_REQUEST",
+                  "message": "The parameter recieved is accepted but the value is invalid"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Generic error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "INTERNALSERVERERROR",
+                  "message": "An unexpected error occurred."
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service down",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "INTEGRATIONFAILURE",
+                  "message": "The service is down."
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Service timeout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "INTEGRATIONTIMEOUT",
+                  "message": "Service timeout."
+                }
+              }
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "credentials": {
+            "Fn::Sub": "${ApiRole.Arn}"
+          },
+          "uri": {
+            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CheckExistsLambdaFunction.Arn}/invocations"
+          }
+        }
+      },
+      "options": {
+        "tags": [
+          "Check Exists"
+        ],
+        "summary": "Returns cors preflight request headers",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "credentials": {
+            "Fn::Sub": "${ApiRole.Arn}"
+          },
+          "uri": {
+            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CorsLambdaFunction.Arn}/invocations"
+          }
+        }
+      }
+    },
+    "/v3/customer-by-external-id/": {
+      "get": {
+        "tags": [
+          "Get customer by External ID"
+        ],
+        "summary": "Gets a customer based on an identifier passed in via a query string",
+        "description": "Used to get a customer object via Salesforce ID, Cognito ID or licence number.",
+        "operationId": "get_customer_by_external_id",
+        "parameters": [
+          {
+            "name": "licence_number",
+            "in": "query",
+            "description": "The customer driving licence number",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "pattern": "^[A-Z0-9]{5}\\d[0156]\\d([0][1-9]|[12]\\d|3[01])\\d[A-Z0-9]{3}[A-Z]{2}$",
+              "type": "string"
+            }
+          },
+          {
+            "name": "cognito_id",
+            "in": "query",
+            "description": "Cognito ID associated to customer",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "salesforce_id",
+            "in": "query",
+            "description": "Salesforce ID assosicated to customer",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully recieved request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerResponseV3"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorisation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Generic error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service down",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Service timeout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "CognitoAuthorizer": [
+              "com.veygo.api.customers/read"
+            ]
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "credentials": {
+            "Fn::Sub": "${ApiRole.Arn}"
+          },
+          "uri": {
+            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SalesforceGetByExternalIdLambdaFunction.Arn}/invocations"
+          }
+        }
+      },
+      "options": {
+        "tags": [
+          "Get customer by External ID"
+        ],
+        "summary": "Returns cors preflight request headers",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "credentials": {
+            "Fn::Sub": "${ApiRole.Arn}"
+          },
+          "uri": {
+            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CorsLambdaFunction.Arn}/invocations"
+          }
+        }
+      }
+    },
+    "/v3/recovery/email/{licence_number}": {
+      "get": {
+        "tags": [
+          "Email hint reminder"
+        ],
+        "summary": "Returns a redacted email reminder of a customer that matches the DLN provided",
+        "operationId": "get_redacted_email_reminder_by_dln",
+        "parameters": [
+          {
+            "name": "licence_number",
+            "in": "path",
+            "description": "The customer driving licence number",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "pattern": "^[A-Z0-9]{5}\\d[0156]\\d([0][1-9]|[12]\\d|3[01])\\d[A-Z0-9]{3}[A-Z]{2}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully recieved request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckExistsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Authentication error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorisation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Generic error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service down",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Service timeout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "CognitoAuthorizer": [
+              "com.veygo.api.customers/read"
+            ]
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "credentials": {
+            "Fn::Sub": "${ApiRole.Arn}"
+          },
+          "uri": {
+            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${EmailHintLambdaFunction.Arn}/invocations"
+          }
+        }
+      },
+      "options": {
+        "tags": [
+          "Email hint reminder"
+        ],
+        "summary": "Returns cors preflight request headers",
+        "parameters": [
+          {
+            "name": "licence_number",
+            "in": "path",
+            "description": "The customer driving licence number",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "pattern": "^[A-Z0-9]{5}\\d[0156]\\d([0][1-9]|[12]\\d|3[01])\\d[A-Z0-9]{3}[A-Z]{2}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "credentials": {
+            "Fn::Sub": "${ApiRole.Arn}"
+          },
+          "uri": {
+            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CorsLambdaFunction.Arn}/invocations"
+          }
+        }
+      }
+    },
+    "/v3/marketing-preferences": {
+      "put": {
+        "tags": [
+          "Update Marketing Preferences"
+        ],
+        "summary": "Updates a customers marketing preferences based on attributes provided in payload",
+        "description": "This is hit after a customer unsubscribes from emails or other correspondence",
+        "operationId": "update_marketing_preferences",
+        "responses": {
+          "200": {
+            "description": "Successfully recieved request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarketingPreferences"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authorisation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Generic error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service down",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Service timeout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "CognitoAuthorizer": [
+              "com.veygo.api.customers/read",
+              "com.veygo.api.customers/write"
+            ]
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "credentials": {
+            "Fn::Sub": "${ApiRole.Arn}"
+          },
+          "uri": {
+            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MarketingPreferencesPutLambdaFunction.Arn}/invocations"
+          }
+        }
+      },
+      "options": {
+        "tags": [
+          "Update Marketing Preferences"
+        ],
+        "summary": "Returns cors preflight request headers",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "credentials": {
+            "Fn::Sub": "${ApiRole.Arn}"
+          },
+          "uri": {
+            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CorsLambdaFunction.Arn}/invocations"
+          }
+        }
+      }
+    },
+    "/v3/password-reset": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Resets a user's password",
+        "operationId": "password_reset",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordResetRequestCognitoORSalesforce"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasswordResetResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-amazon-apigateway-request-validator": "body",
+        "x-amazon-apigateway-integration": {
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "credentials": {
+            "Fn::Sub": "${ApiRole.Arn}"
+          },
+          "uri": {
+            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PasswordResetLambdaFunction.Arn}/invocations"
+          }
+        }
+      },
+      "options": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Returns cors preflight request headers",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "credentials": {
+            "Fn::Sub": "${ApiRole.Arn}"
+          },
+          "uri": {
+            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CorsLambdaFunction.Arn}/invocations"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CheckExistsResponse": {
+        "type": "object",
+        "properties": {
+          "customer_exists": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "BadRequestErrorResponse": {
+        "required": [
+          "code",
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "detail": {
+            "oneOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "loc": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "PersonalDetails": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "enum": [
+              "mr",
+              "mrs",
+              "miss",
+              "ms",
+              "mx"
+            ]
+          },
+          "first_name": {
+            "type": "string"
+          },
+          "middle_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          },
+          "phone_number": {
+            "type": "string"
+          },
+          "occupation_type": {
+            "type": "string",
+            "enum": [
+              "employed",
+              "student",
+              "other"
+            ]
+          },
+          "occupation": {
+            "type": "string"
+          },
+          "date_of_birth": {
+            "type": "string"
+          },
+          "email": {
+            "pattern": "^(([^<>()\\[\\]\\\\.,;:\\s@\"]+(\\.[^<>()\\[\\]\\\\.,;:\\s@\"]+)*)|(\".+\"))@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$",
+            "type": "string",
+            "format": "email"
+          }
+        }
+      },
+      "MarketingPreferences": {
+        "type": "object",
+        "properties": {
+          "email_consent": {
+            "type": "boolean"
+          },
+          "phone_consent": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UserV3": {
+        "required": [
+          "username"
+        ],
+        "type": "object",
+        "properties": {
+          "username": {
+            "minLength": 8,
+            "pattern": "^(([^<>()\\[\\]\\\\.,;:\\s@\"]+(\\.[^<>()\\[\\]\\\\.,;:\\s@\"]+)*)|(\".+\"))@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$",
+            "type": "string",
+            "format": "email"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DrivingLicenceV3": {
+        "type": "object",
+        "properties": {
+          "licence_number": {
+            "pattern": "^[A-Z0-9]{5}\\d[0156]\\d([0][1-9]|[12]\\d|3[01])\\d[A-Z0-9]{3}[A-Z]{2}$",
+            "type": "string"
+          },
+          "licence_type": {
+            "type": "string",
+            "enum": [
+              "ukm",
+              "uka",
+              "ukp",
+              "nuk"
+            ]
+          },
+          "full_provisional_confirmed": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "full_provisional_date_confirmed": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AddressV3": {
+        "type": "object",
+        "properties": {
+          "flat_no": {
+            "type": "string"
+          },
+          "house_no": {
+            "type": "string"
+          },
+          "house_name": {
+            "type": "string"
+          },
+          "line1": {
+            "type": "string"
+          },
+          "line2": {
+            "type": "string"
+          },
+          "postcode": {
+            "type": "string"
+          },
+          "road": {
+            "type": "string"
+          },
+          "town": {
+            "type": "string"
+          },
+          "county": {
+            "type": "string"
+          },
+          "country": {
+            "maxLength": 3,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateCustomerRequestV3": {
+        "required": [
+          "address",
+          "driving_licence",
+          "user"
+        ],
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/UserV3"
+          },
+          "personal_details": {
+            "$ref": "#/components/schemas/PersonalDetails"
+          },
+          "address": {
+            "$ref": "#/components/schemas/AddressV3"
+          },
+          "driving_licence": {
+            "$ref": "#/components/schemas/DrivingLicenceV3"
+          },
+          "marketing_preferences": {
+            "$ref": "#/components/schemas/MarketingPreferences"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateCustomerRequestV3": {
+        "type": "object",
+        "properties": {
+          "personal_details": {
+            "$ref": "#/components/schemas/PersonalDetails"
+          },
+          "address": {
+            "$ref": "#/components/schemas/AddressV3"
+          },
+          "driving_licence": {
+            "$ref": "#/components/schemas/DrivingLicenceV3"
+          },
+          "marketing_preferences": {
+            "$ref": "#/components/schemas/MarketingPreferences"
+          }
+        },
+        "additionalProperties": false
+      },
+      "BaseCustomerResponseV3": {
+        "required": [
+          "can_edit"
+        ],
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/BaseCustomerResponseV3_user"
+          },
+          "age": {
+            "type": "number",
+            "nullable": true
+          },
+          "postcode": {
+            "type": "string"
+          },
+          "can_edit": {
+            "type": "boolean"
+          },
+          "email": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "first_name": {
+            "type": "string"
+          },
+          "middle_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          },
+          "phone_number": {
+            "type": "string"
+          },
+          "date_of_birth": {
+            "type": "string",
+            "nullable": true
+          },
+          "occupation_type": {
+            "type": "string"
+          },
+          "occupation": {
+            "type": "string"
+          },
+          "licence_type": {
+            "type": "string"
+          },
+          "licence_number": {
+            "type": "string"
+          },
+          "full_provisional_confirmed": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "full_provisional_date_confirmed": {
+            "type": "string",
+            "nullable": true
+          },
+          "email_consent": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "phone_consent": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "offers_and_updates_consent": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "surveys_and_feedback_consent": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "admiral_marketing_consent": {
+            "type": "boolean",
+            "nullable": true
+          }
+        }
+      },
+      "CustomerResponseV3": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseCustomerResponseV3"
+          },
+          {
+            "required": [
+              "addresses"
+            ],
+            "type": "object",
+            "properties": {
+              "addresses": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/AddressV3"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "UpdateCustomerResponseV3": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseCustomerResponseV3"
+          },
+          {
+            "required": [
+              "address"
+            ],
+            "type": "object",
+            "properties": {
+              "address": {
+                "$ref": "#/components/schemas/AddressV3"
+              }
+            }
+          }
+        ]
+      },
+      "PasswordResetRequestCognitoORSalesforce": {
+        "required": [
+          "confirmationCode",
+          "password",
+          "username"
+        ],
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "minLength": 8,
+            "type": "string"
+          },
+          "confirmationCode": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PasswordResetResponse": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "inline_response_201": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/CustomerResponseV3"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "token": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "BaseCustomerResponseV3_user": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "parameters": {
+      "DrivingLicenceNumber": {
+        "name": "licence_number",
+        "in": "query",
+        "description": "The customer driving licence number",
+        "required": false,
+        "style": "form",
+        "explode": true,
+        "schema": {
+          "pattern": "^[A-Z0-9]{5}\\d[0156]\\d([0][1-9]|[12]\\d|3[01])\\d[A-Z0-9]{3}[A-Z]{2}$",
+          "type": "string"
+        }
+      },
+      "CognitoId": {
+        "name": "cognito_id",
+        "in": "query",
+        "description": "Cognito ID associated to customer",
+        "required": false,
+        "style": "form",
+        "explode": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "SalesforceId": {
+        "name": "salesforce_id",
+        "in": "query",
+        "description": "Salesforce ID assosicated to customer",
+        "required": false,
+        "style": "form",
+        "explode": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "UserIdentity": {
+        "name": "user_identity",
+        "in": "cookie",
+        "description": "The user id associated with feature flag(s)",
+        "required": false,
+        "style": "form",
+        "explode": true,
+        "schema": {
+          "type": "string",
+          "format": "ascii_letters"
+        }
+      },
+      "DrivingLicencePathParameter": {
+        "name": "licence_number",
+        "in": "path",
+        "description": "The customer driving licence number",
+        "required": true,
+        "style": "simple",
+        "explode": false,
+        "schema": {
+          "pattern": "^[A-Z0-9]{5}\\d[0156]\\d([0][1-9]|[12]\\d|3[01])\\d[A-Z0-9]{3}[A-Z]{2}$",
+          "type": "string"
+        }
+      }
+    },
+    "securitySchemes": {
+      "CognitoAuthorizer": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header",
+        "x-amazon-apigateway-authtype": "cognito_user_pools",
+        "x-amazon-apigateway-authorizer": {
+          "providerARNs": [
+            {
+              "Fn::Sub": "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${env:COGNITO_USER_POOL}"
+            }
+          ],
+          "type": "cognito_user_pools"
+        }
+      }
+    }
+  },
+  "x-amazon-apigateway-request-validators": {
+    "all": {
+      "validateRequestBody": true,
+      "validateRequestParameters": true
+    },
+    "params": {
+      "validateRequestBody": true,
+      "validateRequestParameters": true
+    },
+    "body": {
+      "validateRequestBody": true,
+      "validateRequestParameters": false
+    }
+  },
+  "x-amazon-apigateway-gateway-responses": {
+    "BAD_REQUEST_BODY": {
+      "statusCode": 400,
+      "responseParameters": {
+        "gatewayresponse.header.Access-Control-Allow-Origin": "method.request.header.origin",
+        "gatewayresponse.header.Access-Control-Allow-Credentials": "'true'"
+      },
+      "responseTemplates": {
+        "application/json": "{\n  \"code\": \"INVALIDREQUEST\",\n  \"message\": $context.error.messageString\n}"
+      }
+    },
+    "MISSING_AUTHENTICATION_TOKEN": {
+      "statusCode": 403,
+      "responseParameters": {
+        "gatewayresponse.header.Access-Control-Allow-Origin": "method.request.header.origin",
+        "gatewayresponse.header.Access-Control-Allow-Credentials": "'true'"
+      },
+      "responseTemplates": {
+        "application/json": "{\n  \"code\": \"MISSINGAUTHTOKEN\",\n  \"message\": $context.error.messageString\n}"
+      }
+    },
+    "UNAUTHORIZED": {
+      "statusCode": 401,
+      "responseParameters": {
+        "gatewayresponse.header.Access-Control-Allow-Origin": "method.request.header.origin",
+        "gatewayresponse.header.Access-Control-Allow-Credentials": "'true'"
+      },
+      "responseTemplates": {
+        "application/json": "{\n  \"code\": \"UNAUTHORIZED\",\n  \"message\": $context.error.messageString\n}"
+      }
+    },
+    "ACCESS_DENIED": {
+      "statusCode": 403,
+      "responseParameters": {
+        "gatewayresponse.header.Access-Control-Allow-Origin": "method.request.header.origin",
+        "gatewayresponse.header.Access-Control-Allow-Credentials": "'true'"
+      },
+      "responseTemplates": {
+        "application/json": "{\n  \"code\": \"ACCESSDENIED\",\n  \"message\": $context.error.messageString\n}"
+      }
+    },
+    "BAD_REQUEST_PARAMETERS": {
+      "statusCode": 400,
+      "responseParameters": {
+        "gatewayresponse.header.Access-Control-Allow-Origin": "method.request.header.origin",
+        "gatewayresponse.header.Access-Control-Allow-Credentials": "'true'"
+      },
+      "responseTemplates": {
+        "application/json": "{\n  \"code\": \"INVALIDPARAMETERS\",\n  \"message\": $context.error.messageString\n}"
+      }
+    },
+    "DEFAULT_4XX": {
+      "statusCode": 400,
+      "responseParameters": {
+        "gatewayresponse.header.Access-Control-Allow-Origin": "method.request.header.origin",
+        "gatewayresponse.header.Access-Control-Allow-Credentials": "'true'"
+      },
+      "responseTemplates": {
+        "application/json": "{\n  \"code\": \"BADREQUEST\",\n  \"message\": $context.error.messageString\n}"
+      }
+    },
+    "DEFAULT_5XX": {
+      "statusCode": 500,
+      "responseParameters": {
+        "gatewayresponse.header.Access-Control-Allow-Origin": "method.request.header.origin",
+        "gatewayresponse.header.Access-Control-Allow-Credentials": "'true'"
+      },
+      "responseTemplates": {
+        "application/json": "{\n  \"code\": \"INTERNALSERVERERROR\",\n  \"message\": $context.error.messageString\n}"
+      }
+    },
+    "INTEGRATION_FAILURE": {
+      "statusCode": 504,
+      "responseParameters": {
+        "gatewayresponse.header.Access-Control-Allow-Origin": "method.request.header.origin",
+        "gatewayresponse.header.Access-Control-Allow-Credentials": "'true'"
+      },
+      "responseTemplates": {
+        "application/json": "{\n  \"code\": \"INTEGRATIONFAILURE\",\n  \"message\": $context.error.messageString\n}"
+      }
+    },
+    "INTEGRATION_TIMEOUT": {
+      "statusCode": 504,
+      "responseParameters": {
+        "gatewayresponse.header.Access-Control-Allow-Origin": "method.request.header.origin",
+        "gatewayresponse.header.Access-Control-Allow-Credentials": "'true'"
+      },
+      "responseTemplates": {
+        "application/json": "{\n  \"code\": \"INTEGRATIONTIMEOUT\",\n  \"message\": $context.error.messageString\n}"
+      }
+    },
+    "RESOURCE_NOT_FOUND": {
+      "statusCode": 404,
+      "responseParameters": {
+        "gatewayresponse.header.Access-Control-Allow-Origin": "method.request.header.origin",
+        "gatewayresponse.header.Access-Control-Allow-Credentials": "'true'"
+      },
+      "responseTemplates": {
+        "application/json": "{\n  \"code\": \"NOTFOUND\",\n  \"message\": $context.error.messageString\n}"
+      }
+    },
+    "WAF_FILTERED": {
+      "statusCode": 403,
+      "responseParameters": {
+        "gatewayresponse.header.Access-Control-Allow-Origin": "method.request.header.origin",
+        "gatewayresponse.header.Access-Control-Allow-Credentials": "'true'"
+      },
+      "responseTemplates": {
+        "application/json": "{\n  \"code\": \"DENIED\",\n  \"message\": $context.error.messageString\n}"
+      }
+    },
+    "UNSUPPORTED_MEDIA_TYPE": {
+      "statusCode": 415,
+      "responseParameters": {
+        "gatewayresponse.header.Access-Control-Allow-Origin": "method.request.header.origin",
+        "gatewayresponse.header.Access-Control-Allow-Credentials": "'true'"
+      },
+      "responseTemplates": {
+        "application/json": "{\n  \"code\": \"UNSUPPORTEDMEDIATYPE\",\n  \"message\": $context.error.messageString\n}"
+      }
+    }
+  }
+}
